@@ -1,4 +1,4 @@
-### Finding 
+### Finding the top customers of a dataset.
 
 SELECT a.customer_id, b.first_name, b.last_name, e.country, d.city, SUM(amount) AS
 total_paid_amount
