@@ -1,0 +1,72 @@
+SELECT
+	COUNT(DISTINCT B.customer_id) AS total_customers,
+	COUNT(top_five_customers) AS top_customers,
+	E.country
+FROM
+	customer B
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_id = E.country_id
+LEFT JOIN
+	(SELECT
+	SUM(A.amount) AS total_paid,
+	B.customer_id, B.first_name, B.last_name,
+	D.city,
+	E.country
+	FROM payment A
+	INNER JOIN customer B ON A.customer_id = B.customer_id
+	INNER JOIN address C ON B.address_id = C.address_id
+	INNER JOIN city D ON C.city_id = D.city_id
+	INNER JOIN country E ON D.country_id = E.country_id
+	GROUP BY B.customer_id, E.country, D.city
+	HAVING city IN ('Aurora', 'Acua', 'Citrus Heights',
+			'Iwaki', 'Ambattur', 'Shanwei', 'So Leopoldo',
+			'Teboksary', 'Tianjin', 'Cianjur')
+	ORDER BY SUM(A.amount) DESC
+	LIMIT 5) AS top_five_customers
+ON B.customer_id = top_five_customers.customer_id
+GROUP BY E.country
+ORDER BY(total_customers) DESC
+
+
+
+### AS CTE
+
+
+WITH top_five_customers (
+Total_paid,
+Customer_id,
+First_name,
+Last_name,
+City,
+country) AS
+	
+(SELECT
+	SUM(A.amount) AS total_paid,
+	B.customer_id, B.first_name, B.last_name,
+	D.city,
+	E.country
+	FROM payment A
+	INNER JOIN customer B ON A.customer_id = B.customer_id
+	INNER JOIN address C ON B.address_id = C.address_id
+	INNER JOIN city D ON C.city_id = D.city_id
+	INNER JOIN country E ON D.country_id = E.country_id
+	GROUP BY B.customer_id, E.country, D.city
+	HAVING city IN ('Aurora', 'Acua', 'Citrus Heights',
+			'Iwaki', 'Ambattur', 'Shanwei', 'So Leopoldo',
+			'Teboksary', 'Tianjin', 'Cianjur')
+	ORDER BY SUM(A.amount) DESC
+	LIMIT 5)
+
+SELECT
+	COUNT(DISTINCT B.customer_id) AS total_customers,
+	COUNT(top_five_customers) AS top_customers,
+	E.country
+FROM
+	customer B
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_id = E.country_id
+LEFT JOIN top_five_customers ON B.customer_id = top_five_customers.customer_id
+GROUP BY E.country
+ORDER BY(total_customers) DESC
