@@ -1,0 +1,35 @@
+### Finding 
+
+SELECT a.customer_id, b.first_name, b.last_name, e.country, d.city, SUM(amount) AS
+total_paid_amount
+FROM payment a
+INNER JOIN customer b on a.customer_id = b.customer_id
+INNER JOIN address c on b.address_id = c.address_id
+INNER JOIN city d on c.city_id = d.city_id
+INNER JOIN country e on d.country_id = e.country_id
+GROUP BY a.customer_id, b.first_name, b.last_name, e.country, d.city
+HAVING city in
+### The following retrieves the TOP 10 cities of the TOP 10 countries
+(
+SELECT city
+FROM customer a
+INNER JOIN address b on a.address_id = b.address_id
+INNER JOIN city c on b.city_id = c.city_id
+INNER JOIN country d on c.country_id = d.country_id
+WHERE country IN
+### The following retrieves the TOP 10 countries by the number of account
+(
+SELECT country
+FROM customer a
+INNER JOIN address b on a.address_id = b.address_id
+INNER JOIN city c on b.city_id = c.city_id
+INNER JOIN country d on c.country_id = d.country_id
+GROUP BY country
+ORDER BY count(customer_id) desc
+LIMIT 10)
+GROUP BY country, city
+ORDER by count(customer_id) desc
+LIMIT 10
+)
+ORDER BY SUM(amount) desc
+LIMIT 5
